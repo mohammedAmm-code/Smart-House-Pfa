@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surveillance Énergétique</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- AOS Animation Library -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --primary-dark: #0b5ed7;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #0dcaf0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar-brand i {
+            margin-right: 8px;
+        }
+        
+        .dashboard-title {
+            color: var(--primary-dark);
+            position: relative;
+            display: inline-block;
+            font-weight: 700;
+        }
+        
+        .dashboard-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 3px;
+            width: 80px;
+            background-color: var(--primary-color);
+            border-radius: 3px;
+        }
+        
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            border: none;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            padding: 15px 20px;
+            border-bottom: none;
+        }
+        
+        .stats-card {
+            height: 100%;
+            text-align: center;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: white;
+        }
+        
+        .stats-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .stats-card.production i {
+            color: var(--success-color);
+        }
+        
+        .stats-card.consumption i {
+            color: var(--danger-color);
+        }
+        
+        .stats-card.efficiency i {
+            color: var(--info-color);
+        }
+        
+        .stats-card .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stats-card .stat-label {
+            font-size: 1rem;
+            color: var(--secondary-color);
+        }
+        
+        .table-responsive {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table-bordered {
+            border: none;
+        }
+        
+        .table thead th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            vertical-align: middle;
+            padding: 15px;
+        }
+        
+        .table tbody td {
+            padding: 12px 15px;
+            vertical-align: middle;
+        }
+        
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        
+        footer {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            padding: 20px 0;
+            position: relative;
+        }
+        
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .fadeOut {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .badge-status {
+            font-size: 0.85rem;
+            padding: 5px 10px;
+            border-radius: 50px;
+        }
+        
+        .badge-positive {
+            background-color: rgba(25, 135, 84, 0.1);
+            color: var(--success-color);
+        }
+        
+        .badge-negative {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .btn-refresh {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50px;
+            padding: 8px 20px;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 500;
+        }
+        
+        .btn-refresh:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+        }
+        
+        .btn-refresh i {
+            margin-right: 5px;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .last-updated {
+            color: var(--secondary-color);
+            font-size: 0.85rem;
+            margin-right: 15px;
+        }
+        
+        @media (max-width: 767.98px) {
+            .stats-card {
+                margin-bottom: 20px;
+            }
+            
+            .header-actions {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- Loading Screen -->
+    <div class="loader-overlay">
+        <div class="loader"></div>
+    </div>
+    
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-bolt"></i> Energy Monitor</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="fas fa-tachometer-alt"></i> Tableau de bord</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-chart-line"></i> Statistiques</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-bell"></i> Alertes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-cog"></i> Paramètres</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="dashboard-title" data-aos="fade-right">Tableau de Bord Énergétique</h1>
+            <div class="header-actions">
+                <span class="last-updated" id="lastUpdated">Dernière mise à jour: Aujourd'hui à 15:30</span>
+                <button class="btn btn-refresh" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i> Actualiser
+                </button>
+            </div>
+        </div>
+        
+        {% if data %}
+        
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4 mb-4 mb-md-0" data-aos="fade-up" data-aos-delay="100">
+                <div class="card stats-card production">
+                    <i class="fas fa-solar-panel"></i>
+                    <div class="stat-value" id="totalProduction">{{ data|sum(attribute='production')|round(2) }} kWh</div>
+                    <div class="stat-label">Production Totale</div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4 mb-md-0" data-aos="fade-up" data-aos-delay="200">
+                <div class="card stats-card consumption">
+                    <i class="fas fa-plug"></i>
+                    <div class="stat-value" id="totalConsumption">{{ data|sum(attribute='consumption')|round(2) }} kWh</div>
+                    <div class="stat-label">Consommation Totale</div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="card stats-card efficiency">
+                    <i class="fas fa-leaf"></i>
+                    <div class="stat-value" id="efficiency">
+                        {{ ((data|sum(attribute='production') / data|sum(attribute='consumption')) * 100)|round|int if data|sum(attribute='consumption') > 0 else 0 }}%
+                    </div>
+                    <div class="stat-label">Efficacité Énergétique</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graph -->
+        <div class="card mb-4" data-aos="fade-up">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-chart-area me-2"></i> Suivi de la Production et Consommation</span>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-light active" data-timeframe="day">Jour</button>
+                    <button class="btn btn-sm btn-outline-light" data-timeframe="week">Semaine</button>
+                    <button class="btn btn-sm btn-outline-light" data-timeframe="month">Mois</button>
+                </div>
+            </div>
+            <div class="card-body p-3">
+                <canvas id="energyChart" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card mb-5" data-aos="fade-up" data-aos-delay="100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-table me-2"></i> Historique des Données</span>
+                <div class="form-group m-0">
+                    <input type="text" class="form-control form-control-sm" id="tableSearch" placeholder="Rechercher...">
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Production (kWh)</th>
+                                <th>Consommation (kWh)</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in data %}
+                            <tr class="animate__animated animate__fadeIn">
+                                <td>{{ row.timestamp }}</td>
+                                <td>{{ row.production }}</td>
+                                <td>{{ row.consumption }}</td>
+                                <td>
+                                    {% if row.production >= row.consumption %}
+                                        <span class="badge badge-status badge-positive">Excédent</span>
+                                    {% else %}
+                                        <span class="badge badge-status badge-negative">Déficit</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+        <div class="alert alert-info text-center" role="alert" data-aos="fade-up">
+            <i class="fas fa-info-circle me-2"></i> Aucune donnée disponible pour le moment.
+            <button class="btn btn-sm btn-primary ms-3">Générer des données de test</button>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-white text-center py-3 mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-md-start">
+                    <p class="mb-0">&copy; 2025 Energy Monitoring System. Tous droits réservés.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white me-3"><i class="fab fa-github"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Animation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    
+    <script>
+        // Initialize AOS Animation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize AOS
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true
+            });
+            
+            // Remove loading screen after page loads
+            setTimeout(function() {
+                document.querySelector('.loader-overlay').classList.add('fadeOut');
+            }, 800);
+            
+            // Refresh button animation
+            document.getElementById('refreshBtn').addEventListener('click', function() {
+                this.disabled = true;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualisation...';
+                setTimeout(() => {
+                    this.disabled = false;
+                    this.innerHTML = '<i class="fas fa-sync-alt"></i> Actualiser';
+                    // Update last updated time
+                    const now = new Date();
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    document.getElementById('lastUpdated').textContent = `Dernière mise à jour: Aujourd'hui à ${hours}:${minutes}`;
+                    
+                    // Simulate chart reload
+                    energyChart.update();
+                }, 1500);
+            });
+            
+            // Table search functionality
+            document.getElementById('tableSearch').addEventListener('keyup', function() {
+                const searchText = this.value.toLowerCase();
+                const tableRows = document.querySelectorAll('tbody tr');
+                
+                tableRows.forEach(row => {
+                    const rowText = row.textContent.toLowerCase();
+                    if (rowText.includes(searchText)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Time frame buttons
+            const timeframeButtons = document.querySelectorAll('[data-timeframe]');
+            timeframeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    timeframeButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Here you would normally update the chart with new data
+                    // For demo, we'll just update the chart animation
+                    energyChart.update();
+                });
+            });
+        });
+
+        {% if data %}
+        // Chart initialization
+        const ctx = document.getElementById('energyChart').getContext('2d');
+        const energyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [{% for row in data %}'{{ row.timestamp }}',{% endfor %}],
+                datasets: [
+                    {
+                        label: 'Production (kWh)',
+                        data: [{% for row in data %}{{ row.production }},{% endfor %}],
+                        borderColor: 'rgba(25, 135, 84, 1)',
+                        backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointBackgroundColor: 'rgba(25, 135, 84, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    },
+                    {
+                        label: 'Consommation (kWh)',
+                        data: [{% for row in data %}{{ row.consumption }},{% endfor %}],
+                        borderColor: 'rgba(220, 53, 69, 1)',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointBackgroundColor: 'rgba(220, 53, 69, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            boxWidth: 12,
+                            font: {
+                                size: 13
+                            }
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        titleColor: '#666',
+                        bodyColor: '#333',
+                        borderColor: '#ddd',
+                        borderWidth: 1,
+                        padding: 10,
+                        boxWidth: 12,
+                        boxHeight: 12,
+                        boxPadding: 3,
+                        usePointStyle: true,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y + ' kWh';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value + ' kWh';
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutQuart'
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                },
+                elements: {
+                    line: {
+                        borderJoinStyle: 'round'
+                    }
+                }
+            }
+        });
+        
+        // Function to add subtle animation to chart
+        function animateChart() {
+            const datasets = energyChart.data.datasets;
+            for (let i = 0; i < datasets.length; i++) {
+                const originalData = [...datasets[i].data];
+                datasets[i].data = Array(originalData.length).fill(0);
+                energyChart.update('none');
+                
+                datasets[i].data = originalData;
+                energyChart.update();
+            }
+        }
+        
+        // Animate chart when it comes into view
+        const chartObserver = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                setTimeout(animateChart, 500);
+                chartObserver.unobserve(entries[0].target);
+            }
+        }, { threshold: 0.5 });
+        
+        chartObserver.observe(document.querySelector('.card-body canvas').parentElement);
+        {% endif %}
+    </script>
+</body>
+</html>
