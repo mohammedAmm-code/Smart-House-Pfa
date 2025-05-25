@@ -1,79 +1,128 @@
-# Documentation Projet : Système de Monitoring Énergétique
+# ⚡ Projet de Monitoring Énergétique
 
-## Présentation générale
+## 📝 Présentation
 
-Le **Système de Monitoring Énergétique** est une application web permettant de surveiller, analyser et visualiser la production et la consommation d'énergie en temps réel. Cette solution complète intègre la collecte de données (simulées ou provenant de capteurs IoT), l'analyse avec détection d'anomalies, et un tableau de bord visuel interactif pour une prise de décision efficace.
+Le **Système de Monitoring Énergétique** est une plateforme web intelligente conçue pour :
+- Suivre la **production** et la **consommation énergétique**,
+- **Détecter les anomalies**,
+- Comparer des **méthodes d’optimisation**,
+- Et fournir un **dashboard visuel interactif**.
 
-## Architecture du Projet
+💡 Idéal pour les installations photovoltaïques, les environnements industriels ou les projets IoT liés à l'énergie.
 
-Le projet est structuré selon une approche modulaire pour faciliter la maintenance et l'évolutivité :
+---
+
+## 🧱 Architecture du projet
+
+
 
 ```
-projet/
+energy_monitoring_project/
 │
-├── app.py                 # Application Flask principale
-├── simulator.py           # Générateur de données simulées
-├── analyzer.py            # Analyse des données et détection des anomalies
-├── alerter.py             # Système de notifications et alertes
-├── data_simulation/       # Stockage des données simulées
-│   └── data.csv           # Fichier de données
-├── templates/             # Templates HTML
-│   └── index.html         # Interface utilisateur du tableau de bord
-├── iot_integration/       # Modules d'intégration IoT (extensible)
-└── requirements.txt       # Dépendances Python
+├── alerts/ # Notifications (alerter.py)
+│ └── alerts_history/ # Historique des alertes en JSON
+│
+├── dashboard/ # Application web Flask
+│ ├── app.py # Serveur principal
+│ └── templates/ # Interface HTML (index.html)
+│
+├── data_analysis/ # Détection d’anomalies
+│ └── analyzer.py
+│
+├── data_simulation/ # Génération et stockage de données
+│ ├── simulator.py
+│ └── data.csv
+│
+├── iot_integration/ # Intégration future de capteurs IoT
+│
+├── optimizers/ # Méthodes d'optimisation
+│ ├── linear_optimizer.py
+│ └── metaheuristic_optimizer.py
+│
+├── utils/ # Calcul des métriques
+│ └── metrics.py
+│
+├── comparison.py # Comparaison des méthodes
+├── requirements.txt # Dépendances Python
+├── README.md # Documentation
+└── tree.txt # Vue arborescente
 ```
 
-## Fonctionnalités principales
 
-### 1. Génération de données
-- Simulation de données de production et consommation énergétique
-- Intervalle de temps configurable entre les générations de données
-- Possibilité d'intégration avec des capteurs IoT réels
+---
 
-### 2. Analyse et détection d'anomalies
-- Analyse automatique des données de consommation
-- Détection des pics de consommation dépassant un seuil configurable
-- Base extensible pour des algorithmes d'analyse plus complexes
+## 🚀 Fonctionnalités
 
-### 3. Système d'alertes
-- Notifications en cas de surconsommation
-- Actuellement configuré pour des alertes console (extensible pour email, SMS, etc.)
+### 📊 1. Monitoring temps réel
+- Dashboard responsive et moderne
+- Graphiques dynamiques (Chart.js)
+- Filtres temporels, export CSV et PDF
 
-### 4. Interface utilisateur moderne et intuitive
-- Tableau de bord interactif avec animations fluides
-- Graphiques dynamiques de suivi de production/consommation
-- Filtres temporels (jour, semaine, mois)
-- Indicateurs de performance clés (KPIs) visuels
-- Interface responsive adaptée aux appareils mobiles
+### 🔍 2. Analyse et détection d’anomalies
+- Détection de surconsommation
+- Seuil configurable
+- Possibilité d’intégration de modèles IA
 
-## Spécifications techniques
+### ⚙️ 3. Optimisation (double méthode)
+- **Linéaire** : ajustement par méthode déterministe
+- **Métaheuristique** : approche adaptative et intelligente
+- Résultat optimal affiché avec justification
 
-### Backend
-- **Langage** : Python 3.x
-- **Framework web** : Flask
-- **Traitement de données** : Pandas
-- **Stockage** : Fichiers CSV (extensible vers bases de données)
+---
 
-### Frontend
-- **Structure** : HTML5 avec templates Jinja2
-- **Style** : Bootstrap 5 avec CSS personnalisé
-- **Visualisation** : Chart.js pour les graphiques interactifs
-- **Animations** : Bibliothèque AOS (Animate On Scroll)
-- **Icônes** : Font Awesome
+## 🛠️ Technologies utilisées
 
-## Guide de démarrage
+### 🔧 Backend
+- Python 3.x
+- Flask
+- Pandas
+- FPDF
 
-### Prérequis
-- Python 3.7 ou supérieur
-- Pip (gestionnaire de paquets Python)
+### 🎨 Frontend
+- HTML5, Jinja2
+- Bootstrap 5
+- Chart.js
+- Animate.css
 
-### Installation
+---
 
+## ▶️ Mise en route
 1. Cloner le dépôt ou extraire l'archive du projet
+```
+   git clone https://github.com/mohammedAmm-code/Smart-House-Pfa.git
+   ```
 2. Installer les dépendances :
    ```
    pip install -r requirements.txt
    ```
+
+### Exécution
+
+1. Lancer le simulateur de données dans un terminal :
+   ```
+   python simulator.py
+   ```
+
+2. Lancer l'application web dans un autre terminal :
+   ```
+   python app.py
+   ```
+
+3. Accéder à l'interface via un navigateur :
+   ```
+   http://localhost:5000
+   ```
+
+4. Pour tester l'analyse d'anomalies (optionnel) :
+   ```
+   python analyzer.py
+   ```
+
+### 📦 Installation des dépendances
+
+```bash
+pip install -r requirements.txt
+```
 
 ### Exécution
 

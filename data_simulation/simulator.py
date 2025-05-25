@@ -7,28 +7,34 @@ from datetime import datetime, timedelta
 def generate_data(simulate_past=False, past_hours=None):
     """Génère des données de production et consommation énergétique."""
     if simulate_past and past_hours:
-        # Générer une donnée dans le passé (pour remplir l'historique)
         timestamp = datetime.now() - timedelta(hours=past_hours)
     else:
-        # Donnée actuelle
         timestamp = datetime.now()
     
-    # Simuler des variations selon l'heure de la journée
     hour = timestamp.hour
-    
-    # Plus de production solaire pendant la journée
+
+    # Production solaire
     if 8 <= hour <= 18:
-        production = round(random.uniform(2.0, 5.0), 2)  # Production solaire élevée
+        production = round(random.uniform(2.0, 5.0), 2)
     else:
-        production = round(random.uniform(0.1, 1.5), 2)  # Production réduite la nuit
+        production = round(random.uniform(0.1, 1.5), 2)
     
-    # Plus de consommation matin et soir
+    # Consommation énergétique
     if 7 <= hour <= 9 or 18 <= hour <= 22:
-        consumption = round(random.uniform(2.5, 4.5), 2)  # Pics de consommation
+        consumption = round(random.uniform(2.5, 4.5), 2)
     else:
-        consumption = round(random.uniform(0.5, 3.0), 2)  # Consommation normale
+        consumption = round(random.uniform(0.5, 3.0), 2)
     
-    return {"timestamp": timestamp, "production": production, "consumption": consumption}
+    # Coût d’énergie du réseau (valeur constante ou simulée)
+    grid_cost = round(random.uniform(0.12, 0.20), 2)  # €/kWh
+
+    return {
+        "timestamp": timestamp,
+        "production": production,
+        "consumption": consumption,
+        "grid_cost": grid_cost
+    }
+
 
 def simulate_data(filepath, interval=5, populate_history=False):
     """Simule l'écriture continue de données dans un fichier CSV."""
